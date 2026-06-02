@@ -6,12 +6,14 @@ import RadarChartComponent from '../components/Charts/RadarChartComponent';
 interface Props { periodo: string; compare: boolean }
 
 type TabId = 'resumen' | 'competencias' | 'objetivos' | 'cualitativas';
+type AmbitoRadar = 'competencias' | 'objetivos';
 
 export default function ColaboradorView({ periodo, compare }: Props) {
   const { id } = useParams<{ id: string }>();
   const colab = id ? getColaboradorById(id) : undefined;
   const [activeTab, setActiveTab] = useState<TabId>('resumen');
   const [openAccordions, setOpenAccordions] = useState<Set<string>>(new Set());
+  const [ambitoRadar, setAmbitoRadar] = useState<AmbitoRadar>('competencias');
 
   if (!colab) {
     return (
@@ -30,8 +32,18 @@ export default function ColaboradorView({ periodo, compare }: Props) {
   };
 
   const initials = colab.nombre.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-
   const logro = colab.calificacionFinal >= 85 ? 'Destacado' : colab.calificacionFinal >= 70 ? 'Cumple' : 'A Mejorar';
+
+  // Convertir objetivos del colaborador a formato radar (% de cumplimiento vs 100%)
+  const objetivosParaRadar = colab.objetivos.map(o => ({
+    nombre: o.descripcion.length > 28 ? o.descripcion.slice(0, 26) + '…' : o.descripcion,
+    logrado: Math.min(100, Math.round((o.logrado / o.meta) * 100)),
+    esperado: 100,
+  }));
+
+  const radarDataColab = ambitoRadar === 'competencias' ? colab.competencias : objetivosParaRadar;
+  const radarTitleColab =
+    ambitoRadar === 'competencias' ? 'Top 5 Brechas de Competencias' : 'Logro de Objetivos';
 
   return (
     <div className="page">
@@ -98,12 +110,31 @@ export default function ColaboradorView({ periodo, compare }: Props) {
           <div className="chart-row">
             <div className="chart-panel">
               <div className="chart-panel-label">Gráfico de Araña</div>
-              <div className="chart-panel-heading">Perfil de Competencias</div>
+
+              {/* Selector de ámbito */}
+              <div className="chip-group" style={{ marginBottom: 10 }}>
+                {(['competencias', 'objetivos'] as AmbitoRadar[]).map(a => (
+                  <button
+                    key={a}
+                    className={`chip ${ambitoRadar === a ? 'active' : ''}`}
+                    onClick={() => setAmbitoRadar(a)}
+                  >
+                    {a === 'competencias' ? 'Competencias' : 'Objetivos'}
+                  </button>
+                ))}
+              </div>
+
+              <div className="chart-panel-heading">{radarTitleColab}</div>
               <RadarChartComponent
-                competencias={colab.competencias}
+                key={ambitoRadar}
+                competencias={radarDataColab}
                 showEditor={true}
-                title="Top 5 Brechas de Competencias"
-                compareData={compare ? colab.competencias.map(c => ({ ...c, logrado: Math.round(c.logrado * 0.96) })) : undefined}
+                title={radarTitleColab}
+                compareData={
+                  compare
+                    ? radarDataColab.map(c => ({ ...c, logrado: Math.round(c.logrado * 0.96) }))
+                    : undefined
+                }
                 compareLabel="Periodo Anterior"
               />
             </div>

@@ -30,15 +30,26 @@ The module has 4 drill-down levels with client-side routing:
 | 3 — Equipo/Jefatura | `/resultados/equipo/:id` | `EquipoView` |
 | 4 — Colaborador | `/resultados/colaborador/:id` | `ColaboradorView` |
 
-`App.tsx` owns global state: `periodo` (selected evaluation cycle) and `compare` toggle (overlay previous period). Both props are passed down to every page.
+`App.tsx` owns global state: `empresaId` (selected company), `periodo` (selected evaluation cycle), and `compare` toggle (overlay previous period). All three are passed down to every page via `AppLayout`. When `empresaId` changes, `periodo` auto-resets to the last available period for that company.
 
-`AppLayout` (sidebar + topbar) wraps all pages. It renders breadcrumbs, period selector, compare toggle, and export dropdown.
+`AppLayout` (sidebar + topbar) wraps all pages. The topbar renders, left to right: breadcrumbs, empresa selector, period selector, compare toggle, export dropdown.
 
-All mock data lives in `src/data/mockData.ts`. Helper functions `getGerenciaById`, `getJefaturaById`, `getColaboradorById`, and `getTop5Gaps` are the main lookup utilities.
+### Empresa selector
+
+The first control in the topbar. Options come from `EMPRESAS` in `mockData.ts`. Default selection is `'all'` (Todas las Empresas). Each empresa has its own `periodos` array; selecting a different empresa filters the period dropdown to that empresa's periods and auto-selects the last one.
+
+### All mock data lives in `src/data/mockData.ts`
+
+Key exports:
+- `EMPRESAS` — array of `EmpresaMock` (id, nombre, periodos, kpis, historial). Index 0 is the 'all' aggregate.
+- `getEmpresaById(id)` — returns the matching `EmpresaMock` (falls back to 'all').
+- `GERENCIAS` — array of gerencias with nested jefaturas and colaboradores.
+- `getGerenciaById`, `getJefaturaById`, `getColaboradorById`, `getTop5Gaps` — lookup helpers.
+- `EMPRESA_KPIS`, `HISTORIAL_EMPRESA` — backwards-compat aliases pointing to the 'all' empresa entry.
 
 **Charts** (`src/components/Charts/`):
 - `RadarChartComponent` — spider/radar with smart-default top-5 gaps, chip selector, max-8 guardrail, editable view
-- `HistoricalBarChart` — 3-period bar chart
+- `HistoricalBarChart` — accepts optional `historial` prop (falls back to global 'all' data); 3-period bar chart
 - `ScatterPlotComponent` — team scatter (objectives vs competencies)
 - `Sparkline` — inline mini bar gaps for the team table
 

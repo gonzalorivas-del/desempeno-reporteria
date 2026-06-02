@@ -1,17 +1,30 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import RadarChartComponent from '../components/Charts/RadarChartComponent';
-import { getGerenciaById, GERENCIAS, COMPETENCIAS_EMPRESA } from '../data/mockData';
+import AmbitoBarChart from '../components/Charts/AmbitoBarChart';
+import DireccionGroupedBar from '../components/Charts/DireccionGroupedBar';
+import {
+  getGerenciaById,
+  GERENCIAS,
+  COMPETENCIAS_EMPRESA,
+  GERENCIA_OBJETIVOS,
+  GERENCIA_AMBITOS,
+  GERENCIA_DIRECCIONES,
+  AMBITOS_EMPRESA,
+  DIRECCIONES_EMPRESA,
+} from '../data/mockData';
 
 interface Props { periodo: string; compare: boolean }
+
+type AmbitoRadar = 'competencias' | 'objetivos';
 
 export default function AgrupacionView({ periodo, compare }: Props) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const gerencia = id ? getGerenciaById(id) : undefined;
-
   const [selectedGerencias, setSelectedGerencias] = useState<string[]>(id ? [id] : [GERENCIAS[0].id]);
+  const [ambitoRadar, setAmbitoRadar] = useState<AmbitoRadar>('competencias');
 
   if (!gerencia) {
     return (
@@ -34,8 +47,22 @@ export default function AgrupacionView({ periodo, compare }: Props) {
 
   const companyAvg = Math.round(GERENCIAS.reduce((s, g) => s + g.promedio, 0) / GERENCIAS.length);
   const selectedData = GERENCIAS.filter(g => selectedGerencias.includes(g.id));
-
   const primaryGerencia = selectedData[0] ?? gerencia;
+
+  const radarDataPrimary =
+    ambitoRadar === 'competencias'
+      ? primaryGerencia.competencias
+      : (GERENCIA_OBJETIVOS[primaryGerencia.id] ?? primaryGerencia.competencias);
+
+  const radarDataEmpresa =
+    ambitoRadar === 'competencias'
+      ? COMPETENCIAS_EMPRESA
+      : GERENCIA_OBJETIVOS['all'] ?? COMPETENCIAS_EMPRESA;
+
+  const ambitosGerencia = GERENCIA_AMBITOS[primaryGerencia.id] ?? AMBITOS_EMPRESA;
+  const direccionesGerencia = GERENCIA_DIRECCIONES[primaryGerencia.id] ?? DIRECCIONES_EMPRESA;
+
+  const radarLabel = ambitoRadar === 'competencias' ? 'Competencias' : 'Objetivos';
 
   return (
     <div className="page">
@@ -109,25 +136,73 @@ export default function AgrupacionView({ periodo, compare }: Props) {
         </div>
       </div>
 
-      {/* Radar */}
+      {/* Radar con selector de ámbito */}
       <div className="chart-row">
         <div className="chart-panel">
           <div className="chart-panel-label">Gráfico de Araña — {primaryGerencia.nombre}</div>
-          <div className="chart-panel-heading">Perfil de Competencias vs. Esperado</div>
+
+          {/* Ámbito selector */}
+          <div className="chip-group" style={{ marginBottom: 10 }}>
+            {(['competencias', 'objetivos'] as AmbitoRadar[]).map(a => (
+              <button
+                key={a}
+                className={`chip ${ambitoRadar === a ? 'active' : ''}`}
+                onClick={() => setAmbitoRadar(a)}
+              >
+                {a === 'competencias' ? 'Competencias' : 'Objetivos'}
+              </button>
+            ))}
+          </div>
+
+          <div className="chart-panel-heading">
+            Perfil de {radarLabel} vs. Esperado
+          </div>
           <RadarChartComponent
-            competencias={primaryGerencia.competencias}
-            compareData={compare ? primaryGerencia.competencias.map(c => ({ ...c, logrado: Math.round(c.logrado * 0.97) })) : undefined}
+            key={`left-${ambitoRadar}`}
+            competencias={radarDataPrimary}
+            compareData={compare ? radarDataPrimary.map(c => ({ ...c, logrado: Math.round(c.logrado * 0.97) })) : undefined}
             compareLabel="Periodo Anterior"
           />
         </div>
         <div className="chart-panel">
           <div className="chart-panel-label">Comparación Empresa</div>
-          <div className="chart-panel-heading">Perfil {primaryGerencia.nombre} vs. Empresa</div>
+
+          {/* Ámbito selector (sincronizado) */}
+          <div className="chip-group" style={{ marginBottom: 10 }}>
+            {(['competencias', 'objetivos'] as AmbitoRadar[]).map(a => (
+              <button
+                key={a}
+                className={`chip ${ambitoRadar === a ? 'active' : ''}`}
+                onClick={() => setAmbitoRadar(a)}
+              >
+                {a === 'competencias' ? 'Competencias' : 'Objetivos'}
+              </button>
+            ))}
+          </div>
+
+          <div className="chart-panel-heading">
+            {primaryGerencia.nombre} vs. Empresa — {radarLabel}
+          </div>
           <RadarChartComponent
-            competencias={primaryGerencia.competencias}
-            compareData={COMPETENCIAS_EMPRESA}
+            key={`right-${ambitoRadar}`}
+            competencias={radarDataPrimary}
+            compareData={radarDataEmpresa}
             compareLabel="Promedio Empresa"
           />
+        </div>
+      </div>
+
+      {/* Desglose por Ámbito + Comparación por Dirección */}
+      <div className="chart-row">
+        <div className="chart-panel">
+          <div className="chart-panel-label">Ámbitos de Evaluación — {primaryGerencia.nombre}</div>
+          <div className="chart-panel-heading">Desglose Calificación por Ámbito</div>
+          <AmbitoBarChart ambitos={ambitosGerencia} />
+        </div>
+        <div className="chart-panel">
+          <div className="chart-panel-label">Direcciones de Evaluación — {primaryGerencia.nombre}</div>
+          <div className="chart-panel-heading">Comparación por Fuente de Evaluación</div>
+          <DireccionGroupedBar data={direccionesGerencia} />
         </div>
       </div>
 

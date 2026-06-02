@@ -9,13 +9,16 @@ import {
   ReferenceLine,
 } from 'recharts';
 import { HISTORIAL_EMPRESA } from '../../data/mockData';
+import type { HistorialPeriodo } from '../../data/mockData';
 
 interface Props {
   compare?: boolean;
+  historial?: HistorialPeriodo[];
 }
 
-export default function HistoricalBarChart({ compare }: Props) {
-  const data = HISTORIAL_EMPRESA.map(h => ({
+export default function HistoricalBarChart({ compare, historial }: Props) {
+  const source = historial ?? HISTORIAL_EMPRESA;
+  const data = source.map(h => ({
     periodo: h.periodo,
     'Cal. Final': h.calificacion,
     ...(compare

@@ -5,11 +5,33 @@ import EmpresaDashboard from './pages/EmpresaDashboard';
 import AgrupacionView from './pages/AgrupacionView';
 import EquipoView from './pages/EquipoView';
 import ColaboradorView from './pages/ColaboradorView';
-import { PERIODOS } from './data/mockData';
+import HistoricoView from './pages/HistoricoView';
+import { EMPRESAS, getEmpresaById } from './data/mockData';
 
 function AppRoutes() {
-  const [periodo, setPeriodo] = useState(PERIODOS[2]);
+  const defaultEmpresa = EMPRESAS[0]; // 'all'
+  const [empresaId, setEmpresaId] = useState(defaultEmpresa.id);
+  const [periodo, setPeriodo] = useState(() => {
+    const periodos = defaultEmpresa.periodos;
+    return periodos[periodos.length - 1];
+  });
   const [compare, setCompare] = useState(false);
+
+  function handleEmpresaChange(id: string) {
+    setEmpresaId(id);
+    const empresa = getEmpresaById(id);
+    const periodos = empresa.periodos;
+    setPeriodo(periodos[periodos.length - 1]);
+  }
+
+  const layoutProps = {
+    compareEnabled: compare,
+    onCompareToggle: setCompare,
+    periodo,
+    onPeriodoChange: setPeriodo,
+    empresaId,
+    onEmpresaChange: handleEmpresaChange,
+  };
 
   return (
     <Routes>
@@ -17,69 +39,45 @@ function AppRoutes() {
       <Route
         path="/resultados/empresa"
         element={
-          <AppLayout
-            breadcrumbs={[]}
-            compareEnabled={compare}
-            onCompareToggle={setCompare}
-            periodo={periodo}
-            onPeriodoChange={setPeriodo}
-          >
-            <EmpresaDashboard periodo={periodo} compare={compare} />
+          <AppLayout {...layoutProps} breadcrumbs={[]}>
+            <EmpresaDashboard periodo={periodo} compare={compare} empresaId={empresaId} />
           </AppLayout>
         }
       />
       <Route
         path="/resultados/agrupacion/:id"
         element={
-          <AppLayoutWrapper compare={compare} setCompare={setCompare} periodo={periodo} setPeriodo={setPeriodo}>
+          <AppLayout {...layoutProps} breadcrumbs={[]}>
             <AgrupacionView periodo={periodo} compare={compare} />
-          </AppLayoutWrapper>
+          </AppLayout>
         }
       />
       <Route
         path="/resultados/equipo/:id"
         element={
-          <AppLayoutWrapper compare={compare} setCompare={setCompare} periodo={periodo} setPeriodo={setPeriodo}>
+          <AppLayout {...layoutProps} breadcrumbs={[]}>
             <EquipoView periodo={periodo} compare={compare} />
-          </AppLayoutWrapper>
+          </AppLayout>
         }
       />
       <Route
         path="/resultados/colaborador/:id"
         element={
-          <AppLayoutWrapper compare={compare} setCompare={setCompare} periodo={periodo} setPeriodo={setPeriodo}>
+          <AppLayout {...layoutProps} breadcrumbs={[]}>
             <ColaboradorView periodo={periodo} compare={compare} />
-          </AppLayoutWrapper>
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/resultados/historico"
+        element={
+          <AppLayout {...layoutProps} breadcrumbs={[]}>
+            <HistoricoView empresaId={empresaId} />
+          </AppLayout>
         }
       />
       <Route path="*" element={<Navigate to="/resultados/empresa" replace />} />
     </Routes>
-  );
-}
-
-function AppLayoutWrapper({
-  children,
-  compare,
-  setCompare,
-  periodo,
-  setPeriodo,
-}: {
-  children: React.ReactNode;
-  compare: boolean;
-  setCompare: (v: boolean) => void;
-  periodo: string;
-  setPeriodo: (p: string) => void;
-}) {
-  return (
-    <AppLayout
-      breadcrumbs={[]}
-      compareEnabled={compare}
-      onCompareToggle={setCompare}
-      periodo={periodo}
-      onPeriodoChange={setPeriodo}
-    >
-      {children}
-    </AppLayout>
   );
 }
 

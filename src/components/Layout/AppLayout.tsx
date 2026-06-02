@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PERIODOS, GERENCIAS } from '../../data/mockData';
+import { EMPRESAS, getEmpresaById, GERENCIAS } from '../../data/mockData';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -9,6 +9,8 @@ interface AppLayoutProps {
   onCompareToggle: (v: boolean) => void;
   periodo: string;
   onPeriodoChange: (p: string) => void;
+  empresaId: string;
+  onEmpresaChange: (id: string) => void;
 }
 
 export default function AppLayout({
@@ -18,12 +20,16 @@ export default function AppLayout({
   onCompareToggle,
   periodo,
   onPeriodoChange,
+  empresaId,
+  onEmpresaChange,
 }: AppLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const [exportOpen, setExportOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname.startsWith(path);
+  const empresaActual = getEmpresaById(empresaId);
+  const periodosDisponibles = empresaActual.periodos;
 
   return (
     <div className="app-shell">
@@ -48,6 +54,12 @@ export default function AppLayout({
           >
             Vista Empresa
           </button>
+          <button
+            className={`sidebar-nav-item ${location.pathname === '/resultados/historico' ? 'active' : ''}`}
+            onClick={() => navigate('/resultados/historico')}
+          >
+            Resultados Históricos
+          </button>
 
           <div className="sidebar-section-label" style={{ marginTop: 8 }}>Áreas / Gerencias</div>
           {GERENCIAS.map(g => (
@@ -71,7 +83,9 @@ export default function AppLayout({
         <div className="topbar">
           {/* Breadcrumbs */}
           <div className="breadcrumbs">
-            <button onClick={() => navigate('/resultados/empresa')}>Empresa</button>
+            <button onClick={() => navigate('/resultados/empresa')}>
+              {empresaId === 'all' ? 'Todas las Empresas' : empresaActual.nombre}
+            </button>
             {breadcrumbs.map((b, i) => (
               <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span className="sep">›</span>
@@ -86,12 +100,35 @@ export default function AppLayout({
 
           {/* Controls */}
           <div className="topbar-controls">
+            {/* Empresa selector */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <label style={{ fontSize: 11, color: 'var(--c-text-faint)', whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Empresa
+              </label>
+              <select
+                value={empresaId}
+                onChange={e => onEmpresaChange(e.target.value)}
+                style={{ fontWeight: empresaId !== 'all' ? 600 : undefined }}
+              >
+                {EMPRESAS.map(e => (
+                  <option key={e.id} value={e.id}>{e.nombre}</option>
+                ))}
+              </select>
+            </div>
+
+            <span style={{ color: 'var(--c-border-strong)', fontSize: 16 }}>|</span>
+
             {/* Period selector */}
-            <select value={periodo} onChange={e => onPeriodoChange(e.target.value)}>
-              {PERIODOS.map(p => (
-                <option key={p} value={p}>{p}</option>
-              ))}
-            </select>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <label style={{ fontSize: 11, color: 'var(--c-text-faint)', whiteSpace: 'nowrap', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Proceso
+              </label>
+              <select value={periodo} onChange={e => onPeriodoChange(e.target.value)}>
+                {periodosDisponibles.map(p => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </div>
 
             {/* Compare toggle */}
             <label className="toggle-label">

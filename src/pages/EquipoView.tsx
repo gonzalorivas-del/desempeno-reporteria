@@ -1,18 +1,20 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getJefaturaById } from '../data/mockData';
+import { getJefaturaById, JEFATURA_OBJETIVOS_RADAR, JEFATURA_OBJETIVOS_EQUIPO } from '../data/mockData';
+import RadarChartComponent from '../components/Charts/RadarChartComponent';
 import ScatterPlotComponent from '../components/Charts/ScatterPlotComponent';
-import Sparkline from '../components/Charts/Sparkline';
 
 interface Props { periodo: string; compare: boolean }
 
 type FilterMode = 'todos' | 'top20' | 'brechas';
+type AmbitoRadar = 'competencias' | 'objetivos';
 
 export default function EquipoView({ periodo, compare }: Props) {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const result = id ? getJefaturaById(id) : undefined;
   const [filterMode, setFilterMode] = useState<FilterMode>('todos');
+  const [ambitoRadar, setAmbitoRadar] = useState<AmbitoRadar>('competencias');
 
   if (!result || !result.jefatura) {
     return (
@@ -56,6 +58,23 @@ export default function EquipoView({ periodo, compare }: Props) {
   const avgObj = Math.round(colabs.reduce((s, c) => s + c.logroObjetivos, 0) / colabs.length);
   const avgComp = Math.round(colabs.reduce((s, c) => s + c.logroCompetencias, 0) / colabs.length);
 
+  // Radar: competencias = promedio del equipo | objetivos = lookup por jefatura
+  const teamCompetenciasRadar = colabs[0].competencias.map(comp => ({
+    nombre: comp.nombre,
+    logrado: Math.round(colabs.reduce((s, c) => s + (c.competencias.find(x => x.nombre === comp.nombre)?.logrado ?? 0), 0) / colabs.length),
+    esperado: comp.esperado,
+  }));
+
+  const objetivosRadar = JEFATURA_OBJETIVOS_RADAR[jefatura.id] ?? [];
+  const radarData = ambitoRadar === 'competencias' ? teamCompetenciasRadar : objetivosRadar;
+  const radarTitle =
+    ambitoRadar === 'competencias'
+      ? 'Perfil de Competencias del Equipo'
+      : 'Logro de Objetivos del Equipo';
+
+  // Objetivos equipo para panel Logrado vs Meta
+  const objetivosEquipo = JEFATURA_OBJETIVOS_EQUIPO[jefatura.id] ?? [];
+
   return (
     <div className="page">
       {/* Header */}
@@ -86,6 +105,91 @@ export default function EquipoView({ periodo, compare }: Props) {
             <div className="kpi-label">N° Colaboradores</div>
             <div className="kpi-value">{colabs.length}</div>
           </div>
+        </div>
+      </div>
+
+      {/* Radar del equipo con selector de ámbito */}
+      <div className="chart-row" style={{ marginBottom: 24 }}>
+        <div className="chart-panel">
+          <div className="chart-panel-label">Gráfico de Araña — Equipo</div>
+
+          <div className="chip-group" style={{ marginBottom: 10 }}>
+            {(['competencias', 'objetivos'] as AmbitoRadar[]).map(a => (
+              <button
+                key={a}
+                className={`chip ${ambitoRadar === a ? 'active' : ''}`}
+                onClick={() => setAmbitoRadar(a)}
+              >
+                {a === 'competencias' ? 'Competencias' : 'Objetivos'}
+              </button>
+            ))}
+          </div>
+
+          <div className="chart-panel-heading">{radarTitle}</div>
+          {(ambitoRadar === 'objetivos' && objetivosRadar.length === 0) ? (
+            <div className="empty-state" style={{ fontSize: 12 }}>
+              No hay datos de objetivos para este equipo en el prototipo.
+            </div>
+          ) : (
+            <RadarChartComponent
+              key={ambitoRadar}
+              competencias={radarData}
+              compareData={
+                compare ? radarData.map(c => ({ ...c, logrado: Math.round(c.logrado * 0.96) })) : undefined
+              }
+              compareLabel="Periodo Anterior"
+            />
+          )}
+        </div>
+
+        {/* Objetivos Logrado vs. Meta */}
+        <div className="chart-panel">
+          <div className="chart-panel-label">Objetivos del Equipo</div>
+          <div className="chart-panel-heading">Logrado vs. Meta — {periodo}</div>
+          {objetivosEquipo.length === 0 ? (
+            <div className="empty-state" style={{ fontSize: 12 }}>
+              No hay datos de objetivos para este equipo en el prototipo.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {objetivosEquipo.map((o, i) => {
+                const cumplimiento = Math.min(120, Math.round((o.logrado / o.meta) * 100));
+                const met = o.logrado >= o.meta;
+                const barWidth = Math.min(100, cumplimiento);
+                return (
+                  <div key={i}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4, gap: 8, flexWrap: 'wrap' }}>
+                      <span style={{ fontWeight: 600, flex: 1 }}>{o.nombre}</span>
+                      <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
+                        <span style={{ color: 'var(--c-text-muted)' }}>
+                          Meta: {o.meta} {o.unidad}
+                        </span>
+                        <span>
+                          Logrado: <strong>{o.logrado} {o.unidad}</strong>
+                        </span>
+                        <span style={{ fontWeight: 700, color: met ? '#222' : '#888', minWidth: 38 }}>
+                          {cumplimiento}% {met ? '✓' : ''}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="hbar-row" style={{ marginBottom: 0 }}>
+                      <div className="hbar-track" style={{ height: 14 }}>
+                        <div
+                          className={`hbar-fill ${met ? 'hbar-fill-above' : 'hbar-fill-below'}`}
+                          style={{ width: `${barWidth}%` }}
+                        />
+                        {/* Meta line at 100% */}
+                        <div className="hbar-avg-line" style={{ left: '100%' }} title="Meta (100%)" />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              <div style={{ fontSize: 11, color: 'var(--c-text-faint)', marginTop: 2 }}>
+                ─── línea = meta (100% cumplimiento)
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -149,15 +253,12 @@ export default function EquipoView({ periodo, compare }: Props) {
               <th>Nota Final</th>
               <th>Logro Obj.</th>
               <th>Logro Comp.</th>
-              <th>Brechas</th>
               {compare && <th>Var. vs. Ant.</th>}
               <th></th>
             </tr>
           </thead>
           <tbody>
             {filtered.map(c => {
-              const maxGap = Math.max(...c.competencias.map(comp => comp.esperado - comp.logrado));
-              const isCritical = maxGap >= gapThreshold;
               return (
                 <tr key={c.id} className="tr-clickable" onClick={() => navigate(`/resultados/colaborador/${c.id}`)}>
                   <td>
@@ -184,16 +285,6 @@ export default function EquipoView({ periodo, compare }: Props) {
                   </td>
                   <td>{c.logroObjetivos}%</td>
                   <td>{c.logroCompetencias}%</td>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <Sparkline competencias={c.competencias} />
-                      {isCritical && (
-                        <span style={{ fontSize: 10, color: '#666', border: '1px solid #ccc', padding: '1px 4px' }}>
-                          !{maxGap}pts
-                        </span>
-                      )}
-                    </div>
-                  </td>
                   {compare && (
                     <td style={{ fontSize: 12, color: 'var(--c-text-faint)' }}>
                       ▲ +{Math.round(Math.random() * 5)} pts

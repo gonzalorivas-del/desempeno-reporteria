@@ -59,20 +59,147 @@ export interface HistorialPeriodo {
 
 export const PERIODOS = ['Proceso 2023', 'Proceso 2024', 'Proceso 2025'];
 
-export const EMPRESA_KPIS = {
-  calificacionFinal: 82,
-  calificacionFinalPrevio: 79,
-  cumplimientoCompetencias: 78,
-  cumplimientoCompetenciasPrevio: 80,
-  cumplimientoObjetivos: 85,
-  cumplimientoObjetivosPrevio: 80,
-};
+// ─── Empresas del cliente ──────────────────────────────────────────────────
 
-export const HISTORIAL_EMPRESA: HistorialPeriodo[] = [
-  { periodo: 'Proc. 2023', calificacion: 74, competencias: 72, objetivos: 76 },
-  { periodo: 'Proc. 2024', calificacion: 79, competencias: 80, objetivos: 80 },
-  { periodo: 'Proc. 2025', calificacion: 82, competencias: 78, objetivos: 85 },
+export interface EmpresaMock {
+  id: string;
+  nombre: string;
+  periodos: string[];
+  totalEvaluados: number;
+  kpis: {
+    calificacionFinal: number;
+    calificacionFinalPrevio: number;
+    cumplimientoCompetencias: number;
+    cumplimientoCompetenciasPrevio: number;
+    cumplimientoObjetivos: number;
+    cumplimientoObjetivosPrevio: number;
+  };
+  historial: HistorialPeriodo[];
+  nEmpresas?: number; // only used by 'all'
+}
+
+export const EMPRESAS: EmpresaMock[] = [
+  {
+    id: 'all',
+    nombre: 'Todas las Empresas',
+    periodos: ['Proceso 2023', 'Proceso 2024', 'Proceso 2025'],
+    totalEvaluados: 148,
+    kpis: {
+      calificacionFinal: 82,
+      calificacionFinalPrevio: 79,
+      cumplimientoCompetencias: 78,
+      cumplimientoCompetenciasPrevio: 80,
+      cumplimientoObjetivos: 85,
+      cumplimientoObjetivosPrevio: 80,
+    },
+    historial: [
+      { periodo: 'Proc. 2023', calificacion: 74, competencias: 72, objetivos: 76 },
+      { periodo: 'Proc. 2024', calificacion: 79, competencias: 80, objetivos: 80 },
+      { periodo: 'Proc. 2025', calificacion: 82, competencias: 78, objetivos: 85 },
+    ],
+    nEmpresas: 5,
+  },
+  {
+    id: 'emp1',
+    nombre: 'Constructora Andina SpA',
+    periodos: ['Proceso 2023', 'Proceso 2024', 'Proceso 2025'],
+    totalEvaluados: 45,
+    kpis: {
+      calificacionFinal: 79,
+      calificacionFinalPrevio: 75,
+      cumplimientoCompetencias: 76,
+      cumplimientoCompetenciasPrevio: 73,
+      cumplimientoObjetivos: 81,
+      cumplimientoObjetivosPrevio: 77,
+    },
+    historial: [
+      { periodo: 'Proc. 2023', calificacion: 70, competencias: 68, objetivos: 72 },
+      { periodo: 'Proc. 2024', calificacion: 75, competencias: 73, objetivos: 77 },
+      { periodo: 'Proc. 2025', calificacion: 79, competencias: 76, objetivos: 81 },
+    ],
+  },
+  {
+    id: 'emp2',
+    nombre: 'Retail Pacífico S.A.',
+    periodos: ['Proceso 2023', 'Proceso 2024', 'Proceso 2025'],
+    totalEvaluados: 38,
+    kpis: {
+      calificacionFinal: 86,
+      calificacionFinalPrevio: 83,
+      cumplimientoCompetencias: 84,
+      cumplimientoCompetenciasPrevio: 81,
+      cumplimientoObjetivos: 88,
+      cumplimientoObjetivosPrevio: 85,
+    },
+    historial: [
+      { periodo: 'Proc. 2023', calificacion: 78, competencias: 76, objetivos: 80 },
+      { periodo: 'Proc. 2024', calificacion: 83, competencias: 81, objetivos: 85 },
+      { periodo: 'Proc. 2025', calificacion: 86, competencias: 84, objetivos: 88 },
+    ],
+  },
+  {
+    id: 'emp3',
+    nombre: 'Minera Las Vertientes Ltda.',
+    periodos: ['Proceso 2024', 'Proceso 2025'],
+    totalEvaluados: 22,
+    kpis: {
+      calificacionFinal: 74,
+      calificacionFinalPrevio: 70,
+      cumplimientoCompetencias: 71,
+      cumplimientoCompetenciasPrevio: 68,
+      cumplimientoObjetivos: 77,
+      cumplimientoObjetivosPrevio: 72,
+    },
+    historial: [
+      { periodo: 'Proc. 2024', calificacion: 70, competencias: 68, objetivos: 72 },
+      { periodo: 'Proc. 2025', calificacion: 74, competencias: 71, objetivos: 77 },
+    ],
+  },
+  {
+    id: 'emp4',
+    nombre: 'Clínica Santa Rosa S.A.',
+    periodos: ['Proceso 2024', 'Proceso 2025'],
+    totalEvaluados: 31,
+    kpis: {
+      calificacionFinal: 88,
+      calificacionFinalPrevio: 84,
+      cumplimientoCompetencias: 85,
+      cumplimientoCompetenciasPrevio: 82,
+      cumplimientoObjetivos: 90,
+      cumplimientoObjetivosPrevio: 86,
+    },
+    historial: [
+      { periodo: 'Proc. 2024', calificacion: 84, competencias: 82, objetivos: 86 },
+      { periodo: 'Proc. 2025', calificacion: 88, competencias: 85, objetivos: 90 },
+    ],
+  },
+  {
+    id: 'emp5',
+    nombre: 'Logística Sur Express',
+    periodos: ['Proceso 2025'],
+    totalEvaluados: 12,
+    kpis: {
+      calificacionFinal: 71,
+      calificacionFinalPrevio: 71,
+      cumplimientoCompetencias: 68,
+      cumplimientoCompetenciasPrevio: 68,
+      cumplimientoObjetivos: 74,
+      cumplimientoObjetivosPrevio: 74,
+    },
+    historial: [
+      { periodo: 'Proc. 2025', calificacion: 71, competencias: 68, objetivos: 74 },
+    ],
+  },
 ];
+
+export function getEmpresaById(id: string): EmpresaMock {
+  return EMPRESAS.find(e => e.id === id) ?? EMPRESAS[0];
+}
+
+// Backwards-compat aliases used by existing pages
+export const EMPRESA_KPIS = EMPRESAS[0].kpis;
+
+export const HISTORIAL_EMPRESA: HistorialPeriodo[] = EMPRESAS[0].historial;
 
 export const COMPETENCIAS_EMPRESA = [
   { nombre: 'Liderazgo', logrado: 79, esperado: 85 },
@@ -607,3 +734,374 @@ export function getColaboradorById(id: string): Colaborador | undefined {
   }
   return undefined;
 }
+
+// ─── Tipos para nuevas vistas de ámbitos ──────────────────────────────────
+
+export interface AmbitoData {
+  label: string;
+  logrado: number;
+  esperado: number;
+  peso: number; // ponderación %
+}
+
+export interface DireccionData {
+  direccion: string;
+  competencias: number;
+  objetivos: number;
+}
+
+// ─── Nivel empresa ────────────────────────────────────────────────────────
+
+export const OBJETIVOS_EMPRESA: { nombre: string; logrado: number; esperado: number }[] = [
+  { nombre: 'Facturación vs. Presupuesto', logrado: 87, esperado: 100 },
+  { nombre: 'NPS Clientes', logrado: 74, esperado: 80 },
+  { nombre: 'Reducción de Costos', logrado: 68, esperado: 75 },
+  { nombre: 'Productividad por Colaborador', logrado: 80, esperado: 85 },
+  { nombre: 'Captación Nuevos Clientes', logrado: 72, esperado: 90 },
+  { nombre: 'Retención de Talentos', logrado: 88, esperado: 85 },
+  { nombre: 'Plazo de Entrega de Proyectos', logrado: 76, esperado: 80 },
+  { nombre: 'Satisfacción Interna', logrado: 82, esperado: 85 },
+];
+
+export const AMBITOS_EMPRESA: AmbitoData[] = [
+  { label: 'Competencias', logrado: 78, esperado: 80, peso: 60 },
+  { label: 'Objetivos', logrado: 85, esperado: 90, peso: 30 },
+  { label: 'Asistencia', logrado: 93, esperado: 95, peso: 10 },
+];
+
+export const DIRECCIONES_EMPRESA: DireccionData[] = [
+  { direccion: 'Descendente', competencias: 79, objetivos: 84 },
+  { direccion: 'Autoevaluación', competencias: 82, objetivos: 88 },
+  { direccion: 'Pares', competencias: 76, objetivos: 83 },
+  { direccion: 'Ascendente', competencias: 74, objetivos: 81 },
+];
+
+// ─── Nivel gerencia (lookup por id) ──────────────────────────────────────
+
+export const GERENCIA_OBJETIVOS: Record<string, { nombre: string; logrado: number; esperado: number }[]> = {
+  tec: [
+    { nombre: 'Disponibilidad de Sistemas', logrado: 99, esperado: 99 },
+    { nombre: 'Resolución de Incidentes', logrado: 80, esperado: 85 },
+    { nombre: 'Proyectos en Plazo', logrado: 75, esperado: 85 },
+    { nombre: 'Testing Automatizado', logrado: 82, esperado: 80 },
+    { nombre: 'Reducción Deuda Técnica', logrado: 65, esperado: 75 },
+    { nombre: 'Satisfacción Usuarios', logrado: 88, esperado: 90 },
+  ],
+  com: [
+    { nombre: 'Meta de Ventas', logrado: 92, esperado: 100 },
+    { nombre: 'Nuevos Clientes', logrado: 88, esperado: 90 },
+    { nombre: 'Retención de Clientes', logrado: 91, esperado: 90 },
+    { nombre: 'NPS de Cartera', logrado: 78, esperado: 75 },
+    { nombre: 'Tiempo de Cierre', logrado: 82, esperado: 85 },
+    { nombre: 'Cuota de Mercado', logrado: 70, esperado: 80 },
+  ],
+  fin: [
+    { nombre: 'Cierre Contable en Plazo', logrado: 96, esperado: 95 },
+    { nombre: 'Reducción de Costos Op.', logrado: 68, esperado: 80 },
+    { nombre: 'Precisión de Proyecciones', logrado: 79, esperado: 85 },
+    { nombre: 'Auditorías sin Observ.', logrado: 88, esperado: 90 },
+    { nombre: 'Cobranza al Día', logrado: 74, esperado: 80 },
+    { nombre: 'Optimización de Procesos', logrado: 62, esperado: 75 },
+  ],
+  ops: [
+    { nombre: 'Cumplimiento de Entregas', logrado: 75, esperado: 85 },
+    { nombre: 'Reducción de Mermas', logrado: 62, esperado: 75 },
+    { nombre: 'Tiempos de Proceso', logrado: 70, esperado: 80 },
+    { nombre: 'Satisfacción Interna', logrado: 68, esperado: 75 },
+    { nombre: 'Cero Accidentes', logrado: 85, esperado: 90 },
+    { nombre: 'Eficiencia de Recursos', logrado: 65, esperado: 78 },
+  ],
+  rrhh: [
+    { nombre: 'Reducción de Rotación', logrado: 82, esperado: 80 },
+    { nombre: 'Tiempo de Selección', logrado: 78, esperado: 75 },
+    { nombre: 'Satisfacción de Empleados', logrado: 85, esperado: 85 },
+    { nombre: 'Cobertura Capacitaciones', logrado: 90, esperado: 90 },
+    { nombre: 'Implementación Procesos HR', logrado: 76, esperado: 80 },
+    { nombre: 'NPS Interno', logrado: 83, esperado: 80 },
+  ],
+};
+
+export const GERENCIA_AMBITOS: Record<string, AmbitoData[]> = {
+  tec: [
+    { label: 'Competencias', logrado: 80, esperado: 82, peso: 60 },
+    { label: 'Objetivos', logrado: 88, esperado: 90, peso: 30 },
+    { label: 'Asistencia', logrado: 95, esperado: 95, peso: 10 },
+  ],
+  com: [
+    { label: 'Competencias', logrado: 84, esperado: 85, peso: 50 },
+    { label: 'Objetivos', logrado: 92, esperado: 95, peso: 40 },
+    { label: 'Asistencia', logrado: 97, esperado: 95, peso: 10 },
+  ],
+  fin: [
+    { label: 'Competencias', logrado: 72, esperado: 80, peso: 60 },
+    { label: 'Objetivos', logrado: 78, esperado: 85, peso: 30 },
+    { label: 'Asistencia', logrado: 90, esperado: 95, peso: 10 },
+  ],
+  ops: [
+    { label: 'Competencias', logrado: 68, esperado: 80, peso: 60 },
+    { label: 'Objetivos', logrado: 72, esperado: 85, peso: 30 },
+    { label: 'Asistencia', logrado: 88, esperado: 95, peso: 10 },
+  ],
+  rrhh: [
+    { label: 'Competencias', logrado: 82, esperado: 83, peso: 60 },
+    { label: 'Objetivos', logrado: 83, esperado: 85, peso: 30 },
+    { label: 'Asistencia', logrado: 96, esperado: 95, peso: 10 },
+  ],
+};
+
+export const GERENCIA_DIRECCIONES: Record<string, DireccionData[]> = {
+  tec: [
+    { direccion: 'Descendente', competencias: 81, objetivos: 89 },
+    { direccion: 'Autoevaluación', competencias: 83, objetivos: 91 },
+    { direccion: 'Pares', competencias: 80, objetivos: 87 },
+    { direccion: 'Ascendente', competencias: 77, objetivos: 85 },
+  ],
+  com: [
+    { direccion: 'Descendente', competencias: 85, objetivos: 93 },
+    { direccion: 'Autoevaluación', competencias: 86, objetivos: 95 },
+    { direccion: 'Pares', competencias: 83, objetivos: 91 },
+    { direccion: 'Ascendente', competencias: 80, objetivos: 88 },
+  ],
+  fin: [
+    { direccion: 'Descendente', competencias: 73, objetivos: 79 },
+    { direccion: 'Autoevaluación', competencias: 78, objetivos: 84 },
+    { direccion: 'Pares', competencias: 70, objetivos: 76 },
+    { direccion: 'Ascendente', competencias: 68, objetivos: 74 },
+  ],
+  ops: [
+    { direccion: 'Descendente', competencias: 70, objetivos: 73 },
+    { direccion: 'Autoevaluación', competencias: 74, objetivos: 78 },
+    { direccion: 'Pares', competencias: 66, objetivos: 70 },
+    { direccion: 'Ascendente', competencias: 63, objetivos: 67 },
+  ],
+  rrhh: [
+    { direccion: 'Descendente', competencias: 83, objetivos: 84 },
+    { direccion: 'Autoevaluación', competencias: 85, objetivos: 86 },
+    { direccion: 'Pares', competencias: 82, objetivos: 82 },
+    { direccion: 'Ascendente', competencias: 79, objetivos: 80 },
+  ],
+};
+
+// ─── Nivel jefatura (lookup por id) ──────────────────────────────────────
+
+export const JEFATURA_OBJETIVOS_RADAR: Record<string, { nombre: string; logrado: number; esperado: number }[]> = {
+  j1: [
+    { nombre: 'Disponibilidad de Red', logrado: 100, esperado: 99 },
+    { nombre: 'Resolución Incidentes', logrado: 80, esperado: 85 },
+    { nombre: 'Certificaciones Técnicas', logrado: 88, esperado: 80 },
+    { nombre: 'Reducción Tickets Escal.', logrado: 92, esperado: 80 },
+  ],
+  j2: [
+    { nombre: 'Modelos Predictivos', logrado: 94, esperado: 90 },
+    { nombre: 'Dashboards Entregados', logrado: 88, esperado: 85 },
+    { nombre: 'Precisión de Modelos', logrado: 84, esperado: 85 },
+    { nombre: 'Automatización Reportes', logrado: 78, esperado: 90 },
+    { nombre: 'EDA Completados', logrado: 72, esperado: 80 },
+  ],
+  j3: [
+    { nombre: 'Meta de Ventas', logrado: 90, esperado: 100 },
+    { nombre: 'Nuevos Clientes', logrado: 86, esperado: 90 },
+    { nombre: 'Retención de Clientes', logrado: 88, esperado: 85 },
+    { nombre: 'NPS de Cartera', logrado: 82, esperado: 70 },
+    { nombre: 'Visitas a Clientes', logrado: 76, esperado: 85 },
+  ],
+};
+
+export const JEFATURA_OBJETIVOS_EQUIPO: Record<string, { nombre: string; logrado: number; meta: number; unidad: string }[]> = {
+  j1: [
+    { nombre: 'Disponibilidad de red', logrado: 99.8, meta: 99.5, unidad: '%' },
+    { nombre: 'Tiempo resolución incidentes (prom.)', logrado: 3.2, meta: 4, unidad: 'hrs' },
+    { nombre: 'Certificaciones técnicas completadas', logrado: 7, meta: 8, unidad: 'cert.' },
+    { nombre: 'Reducción tickets escalados', logrado: 28, meta: 20, unidad: '%' },
+  ],
+  j2: [
+    { nombre: 'Modelos predictivos implementados', logrado: 4, meta: 3, unidad: 'modelos' },
+    { nombre: 'Precisión promedio modelos', logrado: 84, meta: 85, unidad: '%' },
+    { nombre: 'Dashboards ejecutivos entregados', logrado: 9, meta: 8, unidad: 'dash.' },
+    { nombre: 'Análisis exploratorios completados', logrado: 6, meta: 8, unidad: 'EDA' },
+    { nombre: 'Reportes automatizados', logrado: 12, meta: 10, unidad: 'reportes' },
+  ],
+  j3: [
+    { nombre: 'Meta de ventas mensual (prom.)', logrado: 100, meta: 100, unidad: '%' },
+    { nombre: 'Nuevos clientes captados', logrado: 19, meta: 18, unidad: 'clientes' },
+    { nombre: 'Tasa de retención clientes', logrado: 86, meta: 85, unidad: '%' },
+    { nombre: 'NPS de cartera', logrado: 74, meta: 70, unidad: 'puntos' },
+    { nombre: 'Visitas a clientes activos', logrado: 36, meta: 40, unidad: 'visitas' },
+  ],
+};
+
+// ─── Resultados Históricos ────────────────────────────────────────────────
+
+export interface ProcesoHistorico {
+  id: string;
+  nombre: string;
+  label: string;
+  empresaId: string;
+  fechaInicio: string;
+  fechaTermino: string;
+  plantilla: '90°' | '180°' | '360°' | 'Por objetivos' | 'Personalizada';
+  estado: 'Finalizada' | 'Activa' | 'Borrador';
+  nEvaluados: number;
+  orden: number;
+  ambitos: ('competencias' | 'objetivos' | 'externas')[];
+}
+
+export const PROCESOS_HISTORICOS: ProcesoHistorico[] = [
+  {
+    id: 'proc-2023', nombre: 'Evaluación Desempeño 2023', label: 'Eval. 2023',
+    empresaId: 'all', fechaInicio: '01/03/2023', fechaTermino: '30/04/2023',
+    plantilla: '180°', estado: 'Finalizada', nEvaluados: 132, orden: 1,
+    ambitos: ['competencias', 'objetivos'],
+  },
+  {
+    id: 'proc-2024', nombre: 'Evaluación 360° 2024', label: 'Eval. 360° 24',
+    empresaId: 'all', fechaInicio: '01/03/2024', fechaTermino: '30/04/2024',
+    plantilla: '360°', estado: 'Finalizada', nEvaluados: 140, orden: 2,
+    ambitos: ['competencias', 'objetivos'],
+  },
+  {
+    id: 'proc-2025', nombre: 'Evaluación Desempeño 2025', label: 'Eval. 2025',
+    empresaId: 'all', fechaInicio: '01/03/2025', fechaTermino: '30/04/2025',
+    plantilla: '180°', estado: 'Finalizada', nEvaluados: 148, orden: 3,
+    ambitos: ['competencias', 'objetivos', 'externas'],
+  },
+  {
+    id: 'proc-q1-2026', nombre: 'Evaluación Objetivos Q1 2026', label: 'Obj. Q1 2026',
+    empresaId: 'all', fechaInicio: '01/01/2026', fechaTermino: '28/02/2026',
+    plantilla: 'Por objetivos', estado: 'Finalizada', nEvaluados: 145, orden: 4,
+    ambitos: ['objetivos'],
+  },
+  {
+    id: 'proc-2026', nombre: 'Evaluación Desempeño 2026', label: 'Eval. 2026',
+    empresaId: 'all', fechaInicio: '01/06/2026', fechaTermino: '31/07/2026',
+    plantilla: '360°', estado: 'Activa', nEvaluados: 0, orden: 5,
+    ambitos: ['competencias', 'objetivos'],
+  },
+];
+
+export interface ResultadoProceso {
+  calificacion: number;
+  competencias: number | null;
+  objetivos: number | null;
+  nEvaluados: number;
+}
+
+export const EMPRESA_RESULTADOS_HISTORICOS: Record<string, ResultadoProceso> = {
+  'proc-2023':   { calificacion: 74, competencias: 72, objetivos: 76, nEvaluados: 132 },
+  'proc-2024':   { calificacion: 79, competencias: 80, objetivos: 80, nEvaluados: 140 },
+  'proc-2025':   { calificacion: 82, competencias: 78, objetivos: 85, nEvaluados: 148 },
+  'proc-q1-2026':{ calificacion: 80, competencias: null, objetivos: 87, nEvaluados: 145 },
+};
+
+export const GERENCIA_RESULTADOS_HISTORICOS: Record<string, Record<string, ResultadoProceso>> = {
+  tec: {
+    'proc-2023':   { calificacion: 78, competencias: 76, objetivos: 80, nEvaluados: 18 },
+    'proc-2024':   { calificacion: 81, competencias: 79, objetivos: 84, nEvaluados: 20 },
+    'proc-2025':   { calificacion: 85, competencias: 80, objetivos: 88, nEvaluados: 22 },
+    'proc-q1-2026':{ calificacion: 83, competencias: null, objetivos: 90, nEvaluados: 22 },
+  },
+  com: {
+    'proc-2023':   { calificacion: 82, competencias: 79, objetivos: 86, nEvaluados: 12 },
+    'proc-2024':   { calificacion: 85, competencias: 82, objetivos: 89, nEvaluados: 14 },
+    'proc-2025':   { calificacion: 88, competencias: 84, objetivos: 92, nEvaluados: 15 },
+    'proc-q1-2026':{ calificacion: 86, competencias: null, objetivos: 94, nEvaluados: 15 },
+  },
+  fin: {
+    'proc-2023':   { calificacion: 72, competencias: 68, objetivos: 76, nEvaluados: 22 },
+    'proc-2024':   { calificacion: 75, competencias: 70, objetivos: 79, nEvaluados: 24 },
+    'proc-2025':   { calificacion: 79, competencias: 72, objetivos: 78, nEvaluados: 25 },
+    'proc-q1-2026':{ calificacion: 77, competencias: null, objetivos: 81, nEvaluados: 25 },
+  },
+  ops: {
+    'proc-2023':   { calificacion: 68, competencias: 65, objetivos: 72, nEvaluados: 48 },
+    'proc-2024':   { calificacion: 70, competencias: 67, objetivos: 74, nEvaluados: 50 },
+    'proc-2025':   { calificacion: 72, competencias: 68, objetivos: 77, nEvaluados: 52 },
+    'proc-q1-2026':{ calificacion: 70, competencias: null, objetivos: 79, nEvaluados: 52 },
+  },
+  rrhh: {
+    'proc-2023':   { calificacion: 78, competencias: 76, objetivos: 80, nEvaluados: 14 },
+    'proc-2024':   { calificacion: 81, competencias: 79, objetivos: 83, nEvaluados: 15 },
+    'proc-2025':   { calificacion: 83, competencias: 82, objetivos: 83, nEvaluados: 16 },
+    'proc-q1-2026':{ calificacion: 81, competencias: null, objetivos: 85, nEvaluados: 16 },
+  },
+};
+
+export const JEFATURA_RESULTADOS_HISTORICOS: Record<string, Record<string, ResultadoProceso>> = {
+  j1: {
+    'proc-2023':   { calificacion: 81, competencias: 78, objetivos: 84, nEvaluados: 4 },
+    'proc-2024':   { calificacion: 83, competencias: 80, objetivos: 87, nEvaluados: 4 },
+    'proc-2025':   { calificacion: 85, competencias: 82, objetivos: 90, nEvaluados: 4 },
+    'proc-q1-2026':{ calificacion: 84, competencias: null, objetivos: 91, nEvaluados: 4 },
+  },
+  j2: {
+    'proc-2023':   { calificacion: 74, competencias: 71, objetivos: 77, nEvaluados: 3 },
+    'proc-2024':   { calificacion: 77, competencias: 74, objetivos: 80, nEvaluados: 3 },
+    'proc-2025':   { calificacion: 81, competencias: 77, objetivos: 85, nEvaluados: 3 },
+    'proc-q1-2026':{ calificacion: 80, competencias: null, objetivos: 88, nEvaluados: 3 },
+  },
+  j3: {
+    'proc-2023':   { calificacion: 76, competencias: 74, objetivos: 78, nEvaluados: 2 },
+    'proc-2024':   { calificacion: 80, competencias: 77, objetivos: 83, nEvaluados: 2 },
+    'proc-2025':   { calificacion: 83, competencias: 80, objetivos: 86, nEvaluados: 2 },
+    'proc-q1-2026':{ calificacion: 82, competencias: null, objetivos: 89, nEvaluados: 2 },
+  },
+};
+
+export const COLABORADOR_RESULTADOS_HISTORICOS: Record<string, {
+  procesoId: string; calificacion: number; logroObj: number; logroComp: number;
+}[]> = {
+  c1: [ // Pedro Soto — mejora constante
+    { procesoId: 'proc-2023',    calificacion: 80, logroObj: 82, logroComp: 78 },
+    { procesoId: 'proc-2024',    calificacion: 84, logroObj: 87, logroComp: 81 },
+    { procesoId: 'proc-2025',    calificacion: 88, logroObj: 90, logroComp: 86 },
+    { procesoId: 'proc-q1-2026', calificacion: 85, logroObj: 91, logroComp: 79 },
+  ],
+  c2: [ // Ana Torres — alto y en alza
+    { procesoId: 'proc-2023',    calificacion: 85, logroObj: 88, logroComp: 82 },
+    { procesoId: 'proc-2024',    calificacion: 88, logroObj: 92, logroComp: 85 },
+    { procesoId: 'proc-2025',    calificacion: 91, logroObj: 94, logroComp: 88 },
+    { procesoId: 'proc-q1-2026', calificacion: 89, logroObj: 95, logroComp: 83 },
+  ],
+  c3: [ // Carlos Méndez — declive
+    { procesoId: 'proc-2023',    calificacion: 80, logroObj: 78, logroComp: 82 },
+    { procesoId: 'proc-2024',    calificacion: 78, logroObj: 75, logroComp: 81 },
+    { procesoId: 'proc-2025',    calificacion: 76, logroObj: 72, logroComp: 80 },
+    { procesoId: 'proc-q1-2026', calificacion: 74, logroObj: 70, logroComp: 78 },
+  ],
+  c4: [ // Laura Vega — mejora sostenida
+    { procesoId: 'proc-2023',    calificacion: 78, logroObj: 80, logroComp: 76 },
+    { procesoId: 'proc-2024',    calificacion: 82, logroObj: 85, logroComp: 79 },
+    { procesoId: 'proc-2025',    calificacion: 85, logroObj: 88, logroComp: 82 },
+    { procesoId: 'proc-q1-2026', calificacion: 84, logroObj: 90, logroComp: 78 },
+  ],
+  c5: [ // Martín Rojas — top performer constante
+    { procesoId: 'proc-2023',    calificacion: 87, logroObj: 90, logroComp: 84 },
+    { procesoId: 'proc-2024',    calificacion: 90, logroObj: 93, logroComp: 87 },
+    { procesoId: 'proc-2025',    calificacion: 93, logroObj: 95, logroComp: 91 },
+    { procesoId: 'proc-q1-2026', calificacion: 92, logroObj: 96, logroComp: 88 },
+  ],
+  c6: [ // Sofía Herrera — mejora progresiva
+    { procesoId: 'proc-2023',    calificacion: 72, logroObj: 74, logroComp: 70 },
+    { procesoId: 'proc-2024',    calificacion: 75, logroObj: 78, logroComp: 72 },
+    { procesoId: 'proc-2025',    calificacion: 79, logroObj: 82, logroComp: 76 },
+    { procesoId: 'proc-q1-2026', calificacion: 78, logroObj: 83, logroComp: 73 },
+  ],
+  c7: [ // Diego Fuentes — mejora lenta desde bajo
+    { procesoId: 'proc-2023',    calificacion: 65, logroObj: 62, logroComp: 68 },
+    { procesoId: 'proc-2024',    calificacion: 68, logroObj: 65, logroComp: 71 },
+    { procesoId: 'proc-2025',    calificacion: 71, logroObj: 68, logroComp: 74 },
+    { procesoId: 'proc-q1-2026', calificacion: 70, logroObj: 69, logroComp: 71 },
+  ],
+  c8: [ // Valeria Castillo — top performer en alza
+    { procesoId: 'proc-2023',    calificacion: 88, logroObj: 92, logroComp: 84 },
+    { procesoId: 'proc-2024',    calificacion: 91, logroObj: 95, logroComp: 87 },
+    { procesoId: 'proc-2025',    calificacion: 94, logroObj: 97, logroComp: 91 },
+    { procesoId: 'proc-q1-2026', calificacion: 93, logroObj: 98, logroComp: 88 },
+  ],
+  c9: [ // Roberto Alvarado — declive
+    { procesoId: 'proc-2023',    calificacion: 77, logroObj: 76, logroComp: 78 },
+    { procesoId: 'proc-2024',    calificacion: 75, logroObj: 73, logroComp: 77 },
+    { procesoId: 'proc-2025',    calificacion: 73, logroObj: 71, logroComp: 75 },
+    { procesoId: 'proc-q1-2026', calificacion: 71, logroObj: 70, logroComp: 72 },
+  ],
+};
