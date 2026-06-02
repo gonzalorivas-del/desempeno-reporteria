@@ -12,7 +12,6 @@ import {
   COLABORADOR_RESULTADOS_HISTORICOS,
 } from '../data/mockData';
 import type { ProcesoHistorico } from '../data/mockData';
-import TrendLineChart from '../components/Charts/TrendLineChart';
 
 interface Props {
   empresaId: string;
@@ -321,15 +320,9 @@ export default function HistoricoView({ empresaId }: Props) {
       filtradas.forEach(g => {
         entry[g.nombre] = GERENCIA_RESULTADOS_HISTORICOS[g.id]?.[p.id]?.calificacion ?? null;
       });
+      entry['Promedio empresa'] = EMPRESA_RESULTADOS_HISTORICOS[p.id]?.calificacion ?? null;
       return entry;
     });
-
-    const areaSeries = filtradas.map((g, i) => ({
-      key: g.nombre,
-      label: g.nombre,
-      color: AREA_COLORS[i] ?? '#ddd',
-      dashed: i > 2,
-    }));
 
     return (
       <>
@@ -356,13 +349,28 @@ export default function HistoricoView({ empresaId }: Props) {
             <span className="panel-title">Evolución de Calificación Final por Área</span>
           </div>
           <div className="panel-body">
-            <TrendLineChart
-              data={trendData}
-              xKey="name"
-              series={areaSeries}
-              height={280}
-              domain={[55, 100]}
-            />
+            <ResponsiveContainer width="100%" height={290}>
+              <ComposedChart data={trendData} margin={{ top: 10, right: 30, bottom: 0, left: -10 }}>
+                <CartesianGrid vertical={false} stroke="#eee" />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#555' }} />
+                <YAxis domain={[55, 100]} tick={{ fontSize: 11, fill: '#555' }} />
+                <Tooltip contentStyle={{ border: '1px solid #999', fontSize: 12 }} />
+                <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+                {filtradas.map((g, i) => (
+                  <Bar key={g.id} dataKey={g.nombre} fill={AREA_COLORS[i] ?? '#ddd'} maxBarSize={32} />
+                ))}
+                <Line
+                  type="monotone"
+                  dataKey="Promedio empresa"
+                  stroke="#111"
+                  strokeWidth={2}
+                  strokeDasharray="6 3"
+                  dot={{ r: 4, fill: '#111', strokeWidth: 0 }}
+                  activeDot={{ r: 6 }}
+                  connectNulls={false}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
