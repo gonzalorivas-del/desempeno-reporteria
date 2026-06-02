@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
 import {
+  ComposedChart, Bar, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+} from 'recharts';
+import {
   PROCESOS_HISTORICOS,
   GERENCIAS,
   EMPRESA_RESULTADOS_HISTORICOS,
@@ -106,6 +110,15 @@ export default function HistoricoView({ empresaId }: Props) {
   const [nivel, setNivel] = useState<NivelHistorico>('empresa');
   const [areaFiltro, setAreaFiltro] = useState<string>('all');
   const [jefaturaFiltro, setJefaturaFiltro] = useState<string>('all');
+  const [expandedColabs, setExpandedColabs] = useState<Set<string>>(new Set());
+
+  function toggleExpandColab(id: string) {
+    setExpandedColabs(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
 
   // ─── Onboarding guiado ────────────────────────────────────────────────────
   const [onboardingStep, setOnboardingStep] = useState<1 | 2 | 3 | null>(1);
@@ -218,17 +231,30 @@ export default function HistoricoView({ empresaId }: Props) {
             </span>
           </div>
           <div className="panel-body">
-            <TrendLineChart
-              data={trendData}
-              xKey="name"
-              series={[
-                { key: 'Cal. Final',   label: 'Cal. Final',    color: '#222' },
-                { key: 'Competencias', label: 'Competencias',  color: '#666', dashed: true },
-                { key: 'Objetivos',    label: 'Objetivos',     color: '#aaa', dashed: true },
-              ]}
-              height={260}
-              domain={[60, 100]}
-            />
+            <ResponsiveContainer width="100%" height={270}>
+              <ComposedChart data={trendData} margin={{ top: 10, right: 30, bottom: 0, left: -10 }}>
+                <CartesianGrid vertical={false} stroke="#eee" />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#555' }} />
+                <YAxis domain={[55, 100]} tick={{ fontSize: 11, fill: '#555' }} />
+                <Tooltip
+                  contentStyle={{ border: '1px solid #999', fontSize: 12 }}
+                />
+                <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
+                <Bar dataKey="Competencias" fill="#444" maxBarSize={40} />
+                <Bar dataKey="Objetivos"    fill="#aaa" maxBarSize={40} />
+                <Line
+                  type="monotone"
+                  dataKey="Cal. Final"
+                  name="Cal. Final"
+                  stroke="#111"
+                  strokeWidth={2}
+                  strokeDasharray="6 3"
+                  dot={{ r: 4, fill: '#111', strokeWidth: 0 }}
+                  activeDot={{ r: 6 }}
+                  connectNulls={false}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
             <div style={{ fontSize: 11, color: 'var(--c-text-faint)', marginTop: 8 }}>
               — Los puntos sin valor corresponden a procesos donde ese ámbito no fue evaluado (ej. "Por objetivos" no tiene dato de Competencias).
             </div>
@@ -594,59 +620,113 @@ export default function HistoricoView({ empresaId }: Props) {
                   const last = vals[vals.length - 1];
                   const delta = first != null && last != null ? last - first : null;
                   const initials = c.nombre.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                  const isExpanded = expandedColabs.has(c.id);
+
+                  // Datos de sub-filas
+                  const datosComp = procesosSeleccionados.map(p => hist.find(h => h.procesoId === p.id)?.logroComp ?? null);
+                  const datosObj  = procesosSeleccionados.map(p => hist.find(h => h.procesoId === p.id)?.logroObj  ?? null);
+
+                  function renderSubRow(label: string, subDatos: (number | null)[]) {
+                    const subVals = subDatos.filter((d): d is number => d != null);
+                    const sf = subVals[0];
+                    const sl = subVals[subVals.length - 1];
+                    const sd = sf != null && sl != null ? sl - sf : null;
+                    return (
+                      <tr style={{ background: 'var(--c-bg-alt)', borderTop: 'none' }}>
+                        <td colSpan={2} style={{ paddingLeft: 52, fontSize: 12, color: 'var(--c-text-muted)', fontStyle: 'italic' }}>
+                          └ {label}
+                        </td>
+                        {subDatos.map((val, i) => {
+                          const prev = subDatos.slice(0, i).reverse().find((d): d is number => d != null);
+                          const diff = val != null && prev != null ? val - prev : null;
+                          return (
+                            <td key={i} style={{ verticalAlign: 'middle' }}>
+                              {val != null ? (
+                                <div>
+                                  <span style={{ fontSize: 13 }}>{val}</span>
+                                  {diff != null && (
+                                    <div style={{ fontSize: 10, color: diff > 0 ? '#333' : diff < 0 ? '#888' : '#aaa', marginTop: 1 }}>
+                                      {diff > 0 ? `▲+${diff}` : diff < 0 ? `▼${diff}` : '='}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span style={{ color: 'var(--c-text-faint)' }}>—</span>
+                              )}
+                            </td>
+                          );
+                        })}
+                        <td>{sf != null && sl != null ? <Tendencia first={sf} last={sl} /> : <span style={{ color: 'var(--c-text-faint)' }}>—</span>}</td>
+                        <td style={{ fontWeight: 600, fontSize: 12, color: sd != null && sd > 0 ? '#222' : sd != null && sd < 0 ? '#888' : '#999' }}>
+                          {sd != null ? (sd >= 0 ? `+${sd}` : `${sd}`) : '—'}
+                        </td>
+                      </tr>
+                    );
+                  }
 
                   return (
-                    <tr key={c.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={{
-                            width: 30, height: 30, flexShrink: 0,
-                            border: '1px solid var(--c-border-strong)',
-                            background: 'var(--c-bg-alt)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)',
-                          }}>
-                            {initials}
-                          </div>
-                          <div>
-                            <div style={{ fontWeight: 600, fontSize: 13 }}>{c.nombre}</div>
-                            <div style={{ fontSize: 11, color: 'var(--c-text-faint)' }}>{c.jefaturaNombre}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>{c.cargo}</td>
-                      {datos.map((val, i) => {
-                        const prev = datos.slice(0, i).reverse().find((d): d is number => d != null);
-                        const diff = val != null && prev != null ? val - prev : null;
-                        return (
-                          <td key={i} style={{ verticalAlign: 'middle' }}>
-                            {val != null ? (
-                              <div>
-                                <strong style={{ fontSize: 15 }}>{val}</strong>
-                                {diff != null && (
-                                  <div style={{ fontSize: 10, color: diff > 0 ? '#333' : diff < 0 ? '#888' : '#aaa', marginTop: 1 }}>
-                                    {diff > 0 ? `▲+${diff}` : diff < 0 ? `▼${diff}` : '='}
-                                  </div>
-                                )}
+                    <>
+                      <tr
+                        key={c.id}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => toggleExpandColab(c.id)}
+                      >
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <div style={{
+                              width: 30, height: 30, flexShrink: 0,
+                              border: '1px solid var(--c-border-strong)',
+                              background: 'var(--c-bg-alt)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)',
+                            }}>
+                              {initials}
+                            </div>
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span style={{ fontWeight: 600, fontSize: 13 }}>{c.nombre}</span>
+                                <span style={{ fontSize: 10, color: 'var(--c-text-faint)' }}>{isExpanded ? '▲' : '▼'}</span>
                               </div>
-                            ) : (
-                              <span style={{ color: 'var(--c-text-faint)' }}>—</span>
-                            )}
-                          </td>
-                        );
-                      })}
-                      <td>
-                        {first != null && last != null
-                          ? <Tendencia first={first} last={last} />
-                          : <span style={{ color: 'var(--c-text-faint)' }}>—</span>}
-                      </td>
-                      <td style={{
-                        fontWeight: 700,
-                        color: delta != null && delta > 0 ? '#222' : delta != null && delta < 0 ? '#888' : '#999',
-                      }}>
-                        {delta != null ? (delta >= 0 ? `+${delta}` : `${delta}`) : '—'}
-                      </td>
-                    </tr>
+                              <div style={{ fontSize: 11, color: 'var(--c-text-faint)' }}>{c.jefaturaNombre}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ color: 'var(--c-text-muted)', fontSize: 12 }}>{c.cargo}</td>
+                        {datos.map((val, i) => {
+                          const prev = datos.slice(0, i).reverse().find((d): d is number => d != null);
+                          const diff = val != null && prev != null ? val - prev : null;
+                          return (
+                            <td key={i} style={{ verticalAlign: 'middle' }}>
+                              {val != null ? (
+                                <div>
+                                  <strong style={{ fontSize: 15 }}>{val}</strong>
+                                  {diff != null && (
+                                    <div style={{ fontSize: 10, color: diff > 0 ? '#333' : diff < 0 ? '#888' : '#aaa', marginTop: 1 }}>
+                                      {diff > 0 ? `▲+${diff}` : diff < 0 ? `▼${diff}` : '='}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span style={{ color: 'var(--c-text-faint)' }}>—</span>
+                              )}
+                            </td>
+                          );
+                        })}
+                        <td>
+                          {first != null && last != null
+                            ? <Tendencia first={first} last={last} />
+                            : <span style={{ color: 'var(--c-text-faint)' }}>—</span>}
+                        </td>
+                        <td style={{
+                          fontWeight: 700,
+                          color: delta != null && delta > 0 ? '#222' : delta != null && delta < 0 ? '#888' : '#999',
+                        }}>
+                          {delta != null ? (delta >= 0 ? `+${delta}` : `${delta}`) : '—'}
+                        </td>
+                      </tr>
+                      {isExpanded && renderSubRow('Competencias', datosComp)}
+                      {isExpanded && renderSubRow('Objetivos', datosObj)}
+                    </>
                   );
                 })}
               </tbody>
