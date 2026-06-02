@@ -165,9 +165,9 @@ export default function EmpresaDashboard({ periodo, compare, empresaId }: Props)
             ))}
           </div>
 
-          <div className="chart-panel-heading">{radarTitle}</div>
           <RadarChartComponent
             key={ambitoRadar}
+            title={radarTitle}
             competencias={radarData}
             compareData={
               compare
